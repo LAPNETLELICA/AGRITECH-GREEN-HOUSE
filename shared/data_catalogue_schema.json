@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plateforme d'Automatisation de Serre Intelligente - Data Catalogue Contract",
+  "version": "1.0.0",
+  "sensor_types": {
+    "ph": {
+      "name": "pH de l'eau",
+      "unit": "pH",
+      "data_type": "double",
+      "plausible_range": [0.0, 14.0],
+      "source_device": "Desun Uniwill"
+    },
+    "tds": {
+      "name": "Solides Dissous Totaux (TDS)",
+      "unit": "ppm",
+      "data_type": "double",
+      "plausible_range": [0.0, 3000.0],
+      "source_device": "Desun Uniwill"
+    },
+    "ec": {
+      "name": "Conductivité Électrique (EC)",
+      "unit": "uS/cm",
+      "data_type": "double",
+      "plausible_range": [0.0, 5000.0],
+      "source_device": "Desun Uniwill"
+    },
+    "water_temp": {
+      "name": "Température de l'eau",
+      "unit": "°C",
+      "data_type": "double",
+      "plausible_range": [0.0, 50.0],
+      "source_device": "Desun Uniwill"
+    },
+    "indoor_temp": {
+      "name": "Température intérieure",
+      "unit": "°C",
+      "data_type": "double",
+      "plausible_range": [-10.0, 60.0],
+      "source_device": "Louvered Box"
+    },
+    "humidity": {
+      "name": "Humidité relative intérieure",
+      "unit": "%RH",
+      "data_type": "double",
+      "plausible_range": [0.0, 100.0],
+      "source_device": "Louvered Box"
+    },
+    "pressure": {
+      "name": "Pression atmosphérique",
+      "unit": "hPa",
+      "data_type": "double",
+      "plausible_range": [900.0, 1100.0],
+      "source_device": "Louvered Box"
+    },
+    "light": {
+      "name": "Intensité lumineuse",
+      "unit": "lux",
+      "data_type": "double",
+      "plausible_range": [0.0, 100000.0],
+      "source_device": "Louvered Box"
+    },
+    "outdoor_temp": {
+      "name": "Température ambiante extérieure",
+      "unit": "°C",
+      "data_type": "double",
+      "plausible_range": [-20.0, 55.0],
+      "source_device": "Greenhouse Sensor"
+    },
+    "reservoir_height": {
+      "name": "Hauteur d'eau du réservoir",
+      "unit": "cm",
+      "data_type": "double",
+      "plausible_range": [0.0, 100.0],
+      "source_device": "Capteur hydrostatique"
+    }
+  },
+  "actuator_types": {
+    "pump": {
+      "equipment": "Pompe à eau électrique",
+      "state_type": "boolean",
+      "sources": ["manual", "rule:RM-2", "rule:RM-5", "failsafe:RM-7"]
+    },
+    "master_valve": {
+      "equipment": "Vanne solénoïde maîtresse (1 po)",
+      "state_type": "boolean",
+      "sources": ["manual", "rule:RM-5"]
+    },
+    "section_valve": {
+      "equipment": "Vanne solénoïde de section (3/4 po)",
+      "state_type": "boolean",
+      "sources": ["manual", "rule:RM-5"]
+    },
+    "fan": {
+      "equipment": "Ventilateur d'aération CA",
+      "state_type": "boolean",
+      "sources": ["manual", "rule:RM-1"]
+    },
+    "led_light": {
+      "equipment": "Éclairage LED Osram",
+      "state_type": "boolean",
+      "sources": ["manual", "rule:RM-4", "rule:RM-5"]
+    }
+  },
+  "quality_flags": ["ok", "stale", "out_of_range"],
+  "alert_types": [
+    "intrusion",
+    "low_reservoir_warning",
+    "high_reservoir_warning",
+    "reservoir_overflow_risk",
+    "sensor_fault",
+    "pump_failsafe"
+  ],
+  "severities": ["info", "warning", "critical"]
+}
