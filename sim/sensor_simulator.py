@@ -18,6 +18,12 @@ class EnvironmentSimulator:
         self.light_pct = 70.0
         self.water_level_pct = 85.0
 
+        # Water quality parameters (Desun Uniwill Modbus RTU)
+        self.ph = 7.2
+        self.tds = 450.0
+        self.ec = 850.0
+        self.water_temp = 21.0
+
         # Environmental physics state flags
         self.rain_active = False
 

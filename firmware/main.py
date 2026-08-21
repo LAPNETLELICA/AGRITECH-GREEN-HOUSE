@@ -12,6 +12,7 @@ from firmware.drivers.light_sensor import LightSensor
 from firmware.drivers.ultrasonic import UltrasonicSensor
 from firmware.drivers.relay import Relay
 from firmware.drivers.servo import ServoMotor
+from firmware.drivers.desun_uniwill import DesunUniwillSensor
 from firmware.controllers.climate_controller import ClimateController
 from firmware.services.network import NetworkManager
 from firmware.services.mqtt_service import MQTTService
@@ -27,6 +28,7 @@ class PersonANodeApp:
         self.soil = SoilMoistureSensor(config.SOIL_ADC_PIN, config.SOIL_ADC_DRY, config.SOIL_ADC_WET)
         self.light = LightSensor(config.LIGHT_ADC_PIN, config.LIGHT_ADC_DARK, config.LIGHT_ADC_BRIGHT)
         self.ultrasonic = UltrasonicSensor(config.ULTRASONIC_TRIG_PIN, config.ULTRASONIC_ECHO_PIN, config.WATER_TANK_MAX_HEIGHT_CM)
+        self.desun = DesunUniwillSensor()
 
         self.pump_relay = Relay(config.RELAY_PUMP_PIN, name="WaterPump")
         self.fan_relay = Relay(config.RELAY_FAN_PIN, name="CoolingFan")
@@ -61,6 +63,7 @@ class PersonANodeApp:
         soil_pct = self.soil.read_percentage()
         light_pct = self.light.read_percentage()
         water_pct = self.ultrasonic.read_level_percentage()
+        water_quality = self.desun.read_all()
 
         telemetry = {
             "device_id": config.DEVICE_ID,
@@ -70,6 +73,11 @@ class PersonANodeApp:
             "soil_moisture": soil_pct,
             "light_intensity": light_pct,
             "water_level": water_pct,
+            "water_quality": water_quality,
+            "ph": water_quality["ph"]["value"],
+            "tds": water_quality["tds"]["value"],
+            "ec": water_quality["ec"]["value"],
+            "water_temp": water_quality["water_temp"]["value"],
             "timestamp": time.time() if hasattr(time, "time") else 0
         }
 

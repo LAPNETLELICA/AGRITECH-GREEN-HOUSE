@@ -56,6 +56,23 @@ MQTT_PORT = 1883
 MQTT_CLIENT_ID = "esp32_person_a"
 MQTT_KEEPALIVE = 60
 
+# Modbus RTU / RS485 Configuration (Desun Uniwill & Industrial Relays)
+MODBUS_UART_ID = 1
+MODBUS_TX_PIN = 17
+MODBUS_RX_PIN = 16
+MODBUS_BAUDRATE = 9600
+DESUN_UNIWILL_SLAVE_ADDR = 0x01
+
+# Desun Uniwill Sensor Plausible Physical Ranges
+PH_MIN = 0.0
+PH_MAX = 14.0
+TDS_MIN = 0.0
+TDS_MAX = 3000.0
+EC_MIN = 0.0
+EC_MAX = 5000.0
+WATER_TEMP_MIN = 0.0
+WATER_TEMP_MAX = 50.0
+
 # MQTT Topics
 MQTT_TOPIC_TELEMETRY = "greenhouse/person_a/telemetry"
 MQTT_TOPIC_COMMANDS = "greenhouse/person_a/commands"

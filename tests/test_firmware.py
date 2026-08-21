@@ -137,5 +137,32 @@ class TestPersonAFirmware(unittest.TestCase):
         # Soil moisture should increase
         self.assertGreater(sim.soil_moisture_pct, 30.0)
 
+    def test_desun_uniwill_driver(self):
+        from firmware.drivers.desun_uniwill import DesunUniwillSensor, calc_crc16
+        sensor = DesunUniwillSensor(slave_addr=1)
+
+        # Test Modbus CRC16 calculation
+        test_frame = bytes([0x01, 0x03, 0x00, 0x00, 0x00, 0x04])
+        crc = calc_crc16(test_frame)
+        self.assertIsInstance(crc, int)
+
+        # Test range validation
+        self.assertEqual(sensor.validate_reading("ph", 7.2), "ok")
+        self.assertEqual(sensor.validate_reading("ph", 18.0), "out_of_range")
+        self.assertEqual(sensor.validate_reading("tds", 500.0), "ok")
+        self.assertEqual(sensor.validate_reading("tds", 4500.0), "out_of_range")
+        self.assertEqual(sensor.validate_reading("ec", 1200.0), "ok")
+        self.assertEqual(sensor.validate_reading("water_temp", 24.5), "ok")
+        self.assertEqual(sensor.validate_reading("water_temp", -10.0), "out_of_range")
+
+        # Test read_all with stale fallback
+        readings = sensor.read_all(mock_fail=True)
+        self.assertIn("ph", readings)
+        self.assertEqual(readings["ph"]["quality_flag"], "stale")
+
+        # Test read_all with out_of_range mock
+        oor_readings = sensor.read_all(mock_fail=True, mock_out_of_range=True)
+        self.assertEqual(oor_readings["ph"]["quality_flag"], "out_of_range")
+
 if __name__ == "__main__":
     unittest.main()

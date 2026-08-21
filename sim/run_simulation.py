@@ -96,12 +96,28 @@ class SimulationRunner:
 
         print(f"\n{BOLD}► OPERATING MODE:{RESET} [{GREEN if mode == 'AUTO' else YELLOW}{mode}{RESET}]")
 
-        print(f"\n{BOLD}► SENSOR TELEMETRY:{RESET}")
+        print(f"\n{BOLD}► SENSOR TELEMETRY (Microclimate & Soil):{RESET}")
         print(f"  • Temperature   : {CYAN}{t.get('temperature', 0):>5.1f} °C{RESET}  (Target: 18.0 - 28.0 °C)")
         print(f"  • Air Humidity  : {CYAN}{t.get('humidity', 0):>5.1f} %{RESET}   (Max: 80.0 %)")
         print(f"  • Soil Moisture : {CYAN}{t.get('soil_moisture', 0):>5.1f} %{RESET}   (Min: 35.0 %, Target: 65.0 %)")
         print(f"  • Water Tank    : {CYAN}{t.get('water_level', 0):>5.1f} %{RESET}   (Safety Cutoff: 15.0 %)")
         print(f"  • Ambient Light : {CYAN}{t.get('light_intensity', 0):>5.1f} %{RESET}")
+
+        print(f"\n{BOLD}► DESUN UNIWILL MODBUS RS485 (Water Quality):{RESET}")
+        ph_val = t.get('ph', 7.2)
+        tds_val = t.get('tds', 450.0)
+        ec_val = t.get('ec', 850.0)
+        wtemp_val = t.get('water_temp', 21.0)
+        wq = t.get('water_quality', {})
+        ph_flag = wq.get('ph', {}).get('quality_flag', 'ok')
+        tds_flag = wq.get('tds', {}).get('quality_flag', 'ok')
+        ec_flag = wq.get('ec', {}).get('quality_flag', 'ok')
+        wtemp_flag = wq.get('water_temp', {}).get('quality_flag', 'ok')
+
+        print(f"  • Water pH      : {CYAN}{ph_val:>5.2f} pH{RESET}   [Flag: {GREEN if ph_flag=='ok' else RED}{ph_flag}{RESET}] (Range: 0 - 14)")
+        print(f"  • Water TDS     : {CYAN}{tds_val:>5.1f} ppm{RESET}  [Flag: {GREEN if tds_flag=='ok' else RED}{tds_flag}{RESET}] (Range: 0 - 3000 ppm)")
+        print(f"  • Water EC      : {CYAN}{ec_val:>5.1f} uS/cm{RESET} [Flag: {GREEN if ec_flag=='ok' else RED}{ec_flag}{RESET}] (Range: 0 - 5000 uS/cm)")
+        print(f"  • Water Temp    : {CYAN}{wtemp_val:>5.1f} °C{RESET}   [Flag: {GREEN if wtemp_flag=='ok' else RED}{wtemp_flag}{RESET}] (Range: 0 - 50 °C)")
 
         print(f"\n{BOLD}► ACTUATOR STATES:{RESET}")
         print(f"  • Water Pump Relay : {fmt_status(acts.get('pump'))}")
