@@ -91,16 +91,20 @@ class DesunUniwillSensor:
         Returns quality flag: 'ok' or 'out_of_range'.
         """
         if sensor_type == "ph":
-            if config.PH_MIN <= val <= config.PH_MAX:
+            low, high = getattr(config, "RANGE_PH", (0.0, 14.0))
+            if low <= val <= high:
                 return "ok"
         elif sensor_type == "tds":
-            if config.TDS_MIN <= val <= config.TDS_MAX:
+            low, high = getattr(config, "RANGE_TDS", (0.0, 3000.0))
+            if low <= val <= high:
                 return "ok"
         elif sensor_type == "ec":
-            if config.EC_MIN <= val <= config.EC_MAX:
+            low, high = getattr(config, "RANGE_EC", (0.0, 5000.0))
+            if low <= val <= high:
                 return "ok"
         elif sensor_type == "water_temp":
-            if config.WATER_TEMP_MIN <= val <= config.WATER_TEMP_MAX:
+            low, high = getattr(config, "RANGE_WATER_TEMP", (0.0, 50.0))
+            if low <= val <= high:
                 return "ok"
         return "out_of_range"
 

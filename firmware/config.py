@@ -1,80 +1,68 @@
 """
-AGRITECH GREENHOUSE - Person A Firmware Configuration
-Centralized configuration parameters, GPIO pin mappings, sensor thresholds, and MQTT settings.
+AGRITECH GREENHOUSE - Central Configuration & Specification Constants
+Platform Automation Specification (Data Catalogue & Application Flows)
 """
 
 # Board & Identity Configuration
-DEVICE_ID = "GREENHOUSE-NODE-A"
-NODE_TYPE = "CLIMATE_SOIL_CONTROLLER"
-FIRMWARE_VERSION = "1.0.0"
+DEVICE_ID = "GREENHOUSE-PASS-01"
+NODE_TYPE = "MODBUS_ESP32_GATEWAY"
+FIRMWARE_VERSION = "2.0.0"
 
-# GPIO Pin Assignments (ESP32 Pinout)
-DHT_PIN = 4             # Digital Pin for DHT11 / DHT22
-SOIL_ADC_PIN = 34       # Analog ADC Pin for Soil Moisture Sensor
-LIGHT_ADC_PIN = 35      # Analog ADC Pin for LDR Light Sensor
-ULTRASONIC_TRIG_PIN = 5 # Digital Pin for HC-SR04 Trigger
-ULTRASONIC_ECHO_PIN = 18# Digital Pin for HC-SR04 Echo
-
-RELAY_PUMP_PIN = 26     # Relay 1: Water Pump (Irrigation)
-RELAY_FAN_PIN = 27      # Relay 2: Cooling Fan (Ventilation)
-RELAY_HEATER_PIN = 25   # Relay 3: Heating Mat / Lamp
-SERVO_VENT_PIN = 14     # PWM Pin: Roof Vent Hatch Servo Motor
-
-LED_STATUS_PIN = 2      # On-board Status LED
-BUZZER_PIN = 13         # Alarm / Alert Buzzer
-
-# Sensor Thresholds & Target Ranges
-TEMP_MIN_C = 18.0               # Below this, turn heater ON, close roof vent
-TEMP_MAX_C = 28.0               # Above this, turn fan ON, open roof vent
-HUMIDITY_MAX_PCT = 80.0         # Above this, turn fan ON to dehumidify
-
-SOIL_MOISTURE_MIN_PCT = 35.0    # Below this, trigger irrigation pump
-SOIL_MOISTURE_TARGET_PCT = 65.0 # Stop irrigation pump when target moisture is reached
-
-WATER_TANK_MIN_PCT = 15.0       # Safety limit: refuse pump operation if tank level < 15%
-WATER_TANK_MAX_HEIGHT_CM = 50.0 # Tank depth for HC-SR04 level percentage computation
-WATER_TANK_SENSOR_OFFSET_CM = 5.0 # Distance from sensor to max fill level
-
-# Timing & Operation Intervals
-SENSOR_READ_INTERVAL_MS = 2000    # Read sensors every 2 seconds
-TELEMETRY_PUB_INTERVAL_MS = 5000  # Publish MQTT telemetry every 5 seconds
-MAX_PUMP_RUN_TIME_SEC = 30        # Maximum consecutive pump runtime safety timeout
-
-# Calibration Data
-SOIL_ADC_DRY = 3200     # ADC value in dry soil (0%)
-SOIL_ADC_WET = 1200     # ADC value in water/wet soil (100%)
-LIGHT_ADC_DARK = 4095   # ADC value in complete darkness
-LIGHT_ADC_BRIGHT = 200  # ADC value under direct bright light
-
-# Network & MQTT Settings
-WIFI_SSID = "AGRI_GREENHOUSE_WIFI"
-WIFI_PASS = "Greenhouse2026!"
-WIFI_CONNECT_TIMEOUT_SEC = 15
-
-MQTT_BROKER = "127.0.0.1"
-MQTT_PORT = 1883
-MQTT_CLIENT_ID = "esp32_person_a"
-MQTT_KEEPALIVE = 60
-
-# Modbus RTU / RS485 Configuration (Desun Uniwill & Industrial Relays)
+# RS485 / Modbus RTU Master UART Configuration
 MODBUS_UART_ID = 1
 MODBUS_TX_PIN = 17
 MODBUS_RX_PIN = 16
+MODBUS_DE_RE_PIN = 4    # RS485 Direction Control Pin
 MODBUS_BAUDRATE = 9600
-DESUN_UNIWILL_SLAVE_ADDR = 0x01
 
-# Desun Uniwill Sensor Plausible Physical Ranges
-PH_MIN = 0.0
-PH_MAX = 14.0
-TDS_MIN = 0.0
-TDS_MAX = 3000.0
-EC_MIN = 0.0
-EC_MAX = 5000.0
-WATER_TEMP_MIN = 0.0
-WATER_TEMP_MAX = 50.0
+# Modbus Slave Addresses (4 Sensors + 1 Waveshare Relay Box)
+SLAVE_ADDR_DESUN_UNIWILL = 0x01
+SLAVE_ADDR_LOUVERED_BOX  = 0x02
+SLAVE_ADDR_GREENHOUSE    = 0x03
+SLAVE_ADDR_HYDROSTATIC   = 0x04
+SLAVE_ADDR_WAVESHARE_RELAY = 0x05
 
-# MQTT Topics
-MQTT_TOPIC_TELEMETRY = "greenhouse/person_a/telemetry"
-MQTT_TOPIC_COMMANDS = "greenhouse/person_a/commands"
-MQTT_TOPIC_STATUS = "greenhouse/person_a/status"
-MQTT_TOPIC_ALERTS = "greenhouse/person_a/alerts"
+# Sensor Plausible Physical Ranges (Section 2 Specification)
+RANGE_PH = (0.0, 14.0)               # pH
+RANGE_TDS = (0.0, 3000.0)            # ppm
+RANGE_EC = (0.0, 5000.0)             # uS/cm
+RANGE_WATER_TEMP = (0.0, 50.0)       # °C
+RANGE_INDOOR_TEMP = (-10.0, 60.0)    # °C
+RANGE_HUMIDITY = (0.0, 100.0)        # %RH
+RANGE_PRESSURE = (900.0, 1100.0)     # hPa
+RANGE_LIGHT = (0.0, 100000.0)        # lux
+RANGE_OUTDOOR_TEMP = (-20.0, 55.0)   # °C
+RANGE_RESERVOIR_HEIGHT = (0.0, 100.0)# cm
+
+# Business Rule Parameters (RM-1, RM-2, RM-5, RM-7)
+# RM-1: Fan Hysteresis (ON at 30.0°C, OFF at 28.0°C)
+FAN_TEMP_ON_C = 30.0
+FAN_TEMP_OFF_C = 28.0
+
+# RM-2 & RM-7: Reservoir Water Level Management & Pump Protection
+RESERVOIR_MAX_HEIGHT_CM = 100.0
+RESERVOIR_OVERFLOW_THRESHOLD_CM = 95.0 # RM-7: Pump lockout threshold
+RESERVOIR_HIGH_THRESHOLD_CM = 85.0     # High level warning threshold
+RESERVOIR_LOW_THRESHOLD_CM = 15.0      # Low level warning threshold
+RESERVOIR_CRITICAL_LOW_CM = 5.0        # RM-2: Critical threshold triggering auto fill
+
+RESPONSE_TIMEOUT_SEC = 300            # 5 min user response window before auto-fill
+AUTO_FILL_DURATION_SEC = 90           # Maximum auto-fill runtime limit
+
+# Polling & Telemetry Intervals
+POLLING_CYCLE_SEC = 5.0               # 5-10 second Modbus polling cycle (HI-7)
+HEARTBEAT_INTERVAL_SEC = 30.0
+MAX_OFFLINE_BUFFER_SIZE = 1000        # Circular buffer capacity for offline catch-up
+
+# Network & FastAPI Backend REST Endpoints
+WIFI_SSID = "AGRI_GREENHOUSE_WIFI"
+WIFI_PASS = "Greenhouse2026!"
+WIFI_CONNECT_TIMEOUT_SEC = 15
+DEVICE_API_KEY = "DEV_KEY_ESP32_PASS_01_SECRET"
+
+FASTAPI_BASE_URL = "http://127.0.0.1:8000"
+ENDPOINT_READINGS_BATCH = "/api/v1/readings/batch"
+ENDPOINT_ACTUATOR_STATE = "/api/v1/actuators/{id}/state"
+ENDPOINT_ALERTS = "/api/v1/alerts"
+ENDPOINT_HEARTBEAT = "/api/v1/devices/{id}/heartbeat"
+ENDPOINT_WS = "ws://127.0.0.1:8000/api/v1/ws"
